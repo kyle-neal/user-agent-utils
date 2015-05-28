@@ -19,8 +19,8 @@ public class Extract {
             operating_systems.element(os.toJSON());
         }
 
-        write_file("browsers.json", browsers.toString(4));
-        write_file("operating_systems.json", operating_systems.toString(4));
+        write_file("json/browsers.json", browsers.toString(4));
+        write_file("json/operating_systems.json", operating_systems.toString(4));
     }
 
     private static void write_file(String file, String contents) throws IOException {
