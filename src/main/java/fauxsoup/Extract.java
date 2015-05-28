@@ -1,9 +1,6 @@
 package fauxsoup;
 
-//import java.util.ArrayList;
-//import java.util.List;
 import eu.bitwalker.useragentutils.*;
-//import net.sf.json.JSONSerializer;
 import net.sf.json.*;
 import java.io.*;
 
