@@ -74,6 +74,10 @@ public enum RenderingEngine {
 	/**
 	 * Other or unknown layout engine.
 	 */
+	BLINK("Blink"),
+	/**
+	 * Layout engine developed as part ofthe Chromium project. Fored from WebKit.
+	 */
 	OTHER("Other");
 	
 	String name;
@@ -81,5 +85,9 @@ public enum RenderingEngine {
 	private RenderingEngine(String name) {
 		this.name = name;
 	}
+	
+	public String getName() {
+		            return this.name;
+		        }
 
 }
