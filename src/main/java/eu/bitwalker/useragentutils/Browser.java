@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
 
 /**
  * Enum constants for most common browsers, including e-mail clients and bots.
@@ -290,6 +292,7 @@ public enum Browser {
 	private final Browser parent;
 	private List<Browser> children;
 	private Pattern versionRegEx;
+	private final String versionRegExString;
 	private static List<Browser> topLevelBrowsers;
 	
 	private Browser(Manufacturer manufacturer, Browser parent, int versionId, String name, String[] aliases, String[] exclude, BrowserType browserType, RenderingEngine renderingEngine, String versionRegexString) {
@@ -302,14 +305,61 @@ public enum Browser {
 		this.browserType = browserType;
 		this.manufacturer = manufacturer;
 		this.renderingEngine = renderingEngine;
-		if (versionRegexString != null)
+		if (versionRegexString != null){
+			this.versionRegExString = versionRegexString;
 			this.versionRegEx = Pattern.compile(versionRegexString);
+		}else{
+			this.versionRegExString = null;
+		}
 		if (this.parent == null) 
 			addTopLevelBrowser(this);
 		else 
 			this.parent.children.add(this);
 	}
 
+	public JSONObject toJSON() {
+		            JSONObject o        = new JSONObject();
+		            JSONArray c         = new JSONArray();
+		            Browser group       = this.getGroup();
+		
+		            o.element("family", group.toString().toLowerCase());
+		            o.element("name", this.name.toLowerCase());
+		            o.element("manufacturer", this.manufacturer.toString().toLowerCase());
+		            o.element("browser_type", this.browserType.toString().toLowerCase());
+		            o.element("rendering_engine", this.renderingEngine.toString().toLowerCase());
+		            if (this.versionRegExString != null) {
+		                o.element("version_regex", this.versionRegExString.toLowerCase());
+		            }
+		
+		            if (this.aliases != null) {
+		                JSONArray aliases = new JSONArray();
+		                for (String alias : this.aliases) {
+		                    aliases.element(alias.toLowerCase());
+		                }
+		                o.element("aliases", aliases);
+		            }
+		
+		            if (this.excludeList != null) {
+		                JSONArray exclusions = new JSONArray();
+		                for (String exclusion : this.excludeList) {
+		                    exclusions.element(exclusion.toLowerCase());
+		                }
+		                o.element("exclusions", exclusions);
+		            }
+		
+		            if (this.children != null) {
+		                for (Browser child : this.children) {
+		                    c.element(child.toJSON());
+		                }
+		                o.element("children", c);
+		            }
+		
+		            return o;
+		        }
+		
+		        public static List<Browser> getBrowsers() {
+		            return topLevelBrowsers;
+		        }
   // create collection of top level browsers during initialization
 	private static void addTopLevelBrowser(Browser browser) {
 		if(topLevelBrowsers == null)

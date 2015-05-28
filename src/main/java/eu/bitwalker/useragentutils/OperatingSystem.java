@@ -40,6 +40,7 @@ package eu.bitwalker.useragentutils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import net.sf.json.*;
 
 /**
  * Enum constants for most common operating systems.
@@ -209,6 +210,7 @@ public enum OperatingSystem {
 	private final DeviceType deviceType;
 	private final OperatingSystem parent;
 	private List<OperatingSystem> children;
+	private String versionRegExString;
 	private Pattern versionRegEx;
 	private static List<OperatingSystem> topLevelOperatingSystems;
 	
@@ -225,6 +227,7 @@ public enum OperatingSystem {
         this.excludeList = Utils.toLowerCase(exclude);
         this.deviceType = deviceType;
         if (versionRegexString != null) { // not implemented yet
+        	this.versionRegExString = versionRegexString;
             this.versionRegEx = Pattern.compile(versionRegexString);
         }
         if (this.parent == null)
@@ -233,6 +236,50 @@ public enum OperatingSystem {
             this.parent.children.add(this);
     }
 
+    public JSONObject toJSON() {
+    	            JSONObject o        = new JSONObject();
+    	            JSONArray c         = new JSONArray();
+    	            OperatingSystem os  = this.getGroup();
+    	
+    	            o.element("family", os.toString().toLowerCase());
+    	            o.element("name", this.name.toLowerCase());
+    	            o.element("manufacturer", this.manufacturer.toString().toLowerCase());
+    	            o.element("device_type", this.deviceType.toString().toLowerCase());
+    	
+    	            if (this.versionRegExString != null) {
+    	                o.element("version_regex", this.versionRegExString.toLowerCase());
+    	            }
+    	
+    	            if (this.aliases != null) {
+    	                JSONArray aliases = new JSONArray();
+    	                for (String alias : this.aliases) {
+    	                    aliases.element(alias.toLowerCase());
+    	                }
+    	                o.element("aliases", aliases);
+    	            }
+    	
+    	            if (this.excludeList != null) {
+    	                JSONArray exclusions = new JSONArray();
+    	                for (String exclude : this.excludeList) {
+    	                    exclusions.element(exclude.toLowerCase());
+    	                }
+    	                o.element("exclusions", exclusions);
+    	            }
+    	
+    	            if (this.children != null) {
+    	                for (OperatingSystem child : this.children) {
+    	                    c.element(child.toJSON());
+    	                }
+    	                o.element("children", c);
+    	            }
+    	
+    	            return o;
+    	        }
+    	
+    	        public static List<OperatingSystem> getOperatingSystems() {
+    	            return topLevelOperatingSystems;
+    	        }
+    	
 	// create collection of top level operating systems during initialization
 	private static void addTopLevelOperatingSystem(OperatingSystem os) {
 		if(topLevelOperatingSystems == null)
